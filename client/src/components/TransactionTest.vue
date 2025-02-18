@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-button type="primary">Click Me</el-button>
     <h1>Transactions</h1>
     <ul>
       <li v-for="transaction in jointTransactions" :key="transaction.id">

@@ -1,5 +1,5 @@
-import { createStore } from "vuex";
-import axios from "axios";
+import { createStore } from 'vuex';
+import axios from 'axios';
 
 interface Transaction {
   id: number;
@@ -30,18 +30,18 @@ const store = createStore<State>({
     async getTransactions({ commit }) {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/transactions"
+          'http://localhost:3000/api/transactions',
         );
-        commit("setTransactions", response.data);
+        commit('setTransactions', response.data);
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error('Error fetching transactions:', error);
       }
     },
   },
   getters: {
     getJointTransactions: (state) => {
       return state.transactions.filter(
-        (transaction) => transaction.accountName === "JOINT"
+        (transaction) => transaction.accountName === 'JOINT',
       );
     },
   },

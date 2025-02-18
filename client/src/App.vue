@@ -2,13 +2,13 @@
   <TransactionTest />
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted } from "vue";
-import { useStore } from "vuex";
-import TransactionTest from "./components/TransactionTest.vue";
+<script lang='ts'>
+import { defineComponent, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import TransactionTest from './components/TransactionTest.vue';
 
 export default defineComponent({
-  name: "App",
+  name: 'App',
   components: {
     TransactionTest,
   },
@@ -16,10 +16,10 @@ export default defineComponent({
     const store = useStore();
 
     onMounted(() => {
-      store.dispatch("getTransactions");
+      store.dispatch('getTransactions');
     });
   },
 });
 </script>
 
-<style lang="scss"></style>
+<style lang='scss'></style>

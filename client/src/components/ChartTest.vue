@@ -1,12 +1,12 @@
 <template>
   <div>
-    <Bar :data="chartData" :options="chartOptions" />
+    <Bar :data='chartData' :options='chartOptions' />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { Bar } from "vue-chartjs";
+<script lang='ts'>
+import { defineComponent } from 'vue';
+import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
@@ -15,7 +15,7 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-} from "chart.js";
+} from 'chart.js';
 
 ChartJS.register(
   Title,
@@ -23,22 +23,22 @@ ChartJS.register(
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
+  LinearScale,
 );
 
 export default defineComponent({
-  name: "ChartComponentTest",
+  name: 'ChartComponentTest',
   components: {
     Bar,
   },
   setup() {
     // Chart data and options
     const chartData = {
-      labels: ["January", "February", "March", "April", "May", "June", "July"],
+      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
       datasets: [
         {
-          label: "Monthly Sales",
-          backgroundColor: "#42A5F5",
+          label: 'Monthly Sales',
+          backgroundColor: '#42A5F5',
           data: [40, 55, 45, 70, 60, 90, 100],
         },
       ],

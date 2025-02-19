@@ -25,7 +25,7 @@ db.connect((err) => {
 });
 
 app.get('/api/transactions', (req, res) => {
-    db.query('SELECT * FROM transactions', (err, results) => {
+    db.query('SELECT id, date, type, description, category, subCategory, accountName, balance, ABS(value) AS value FROM transactions', (err, results) => {
       if (err) {
         res.status(500).send(err);
       } else {

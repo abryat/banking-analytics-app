@@ -1,23 +1,29 @@
 <template>
-  <TransactionTest />
+  <HomePage v-if="transactionsLoaded"/>
 </template>
 
 <script lang='ts'>
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, ref} from 'vue';
 import { useStore } from 'vuex';
-import TransactionTest from './components/TransactionTest.vue';
+import HomePage from './components/HomePage.vue';
 
 export default defineComponent({
   name: 'App',
   components: {
-    TransactionTest,
+    HomePage,
   },
   setup() {
     const store = useStore();
+    const transactionsLoaded = ref(false);
 
-    onMounted(() => {
-      store.dispatch('getTransactions');
+    onMounted(async() => {
+      await store.dispatch('getTransactions');
+      transactionsLoaded.value = true;
     });
+
+    return {
+      transactionsLoaded,
+    };
   },
 });
 </script>

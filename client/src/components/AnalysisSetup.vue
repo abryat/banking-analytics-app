@@ -227,7 +227,8 @@ export default defineComponent({
     });
 
     //Reset filters if date range is changed
-    watch([formData.startDate, formData.endDate], () => {
+    watch([() => formData.startDate, () => formData.endDate], () => {
+      console.log('updating');
       formData.selectedCategories = [];
       formData.selectedSubCategories = [];
       formData.selectedAccounts = [];
@@ -235,7 +236,7 @@ export default defineComponent({
       checkAllSubCategories.value = false;
       checkAllAccounts.value = false;
       indeterminateCategories.value = false;
-      indeterminateCategories.value = false;
+      indeterminateSubCategories.value = false;
       indeterminateAccounts.value = false;
     });
 

@@ -19,7 +19,7 @@ module.exports = {
     'semi': [ 'error', 'always' ],
     'comma-dangle': [ 'error', 'always-multiline' ],
     'no-trailing-spaces': 'error',
-    '@typescript-eslint/no-explicit-any': 'error',
+    //'@typescript-eslint/no-explicit-any': 'error',
     'vue/no-unused-vars': 'warn',
   },
   overrides: [

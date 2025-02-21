@@ -1,6 +1,7 @@
 import Vuex from 'vuex';
 import axios from 'axios';
 import createPersistedState from 'vuex-persistedstate';
+import moment from 'moment';
 
 export interface Transaction {
   id: number;
@@ -72,9 +73,13 @@ const store = new Vuex.Store<State>({
   getters: {
     //Return the start and end of date range across all transactions
     getTransactionDateRange: (state: State) => {
-      const sortedTxns = state.transactions.sort((a: Transaction, b: Transaction) => new Date(a.date).getDate() - new Date(b.date).getDate());
-      const start = sortedTxns[0].date;
-      const end = sortedTxns[sortedTxns.length - 1].date;
+      const sortedTransactions = state.transactions.sort((a: Transaction, b: Transaction) => {
+        const dateA = moment(a.date);
+        const dateB = moment(b.date);
+        return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
+      });
+      const start = sortedTransactions[0].date;
+      const end = sortedTransactions[sortedTransactions.length - 1].date;
       return {
         start: start,
         end: end,

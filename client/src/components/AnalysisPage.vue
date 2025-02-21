@@ -72,7 +72,7 @@ export default defineComponent({
     const startDate = moment(analysisConfig.value.startDate).format('DD/MM/YYYY');
     const endDate = moment(analysisConfig.value.endDate).format('DD/MM/YYYY');
     const categories = analysisConfig.value.selectedCategories.length > 0 ? analysisConfig.value.selectedCategories : ['All'];
-    const subCategories = analysisConfig.value.selectedCategories.length > 0 ? analysisConfig.value.selectedSubCategories : ['All'];
+    const subCategories = analysisConfig.value.selectedSubCategories.length > 0 ? analysisConfig.value.selectedSubCategories : ['All'];
     const accounts = analysisConfig.value.selectedAccounts.length > 0 ? analysisConfig.value.selectedAccounts : ['All'];
 
     return {

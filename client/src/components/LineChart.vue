@@ -159,7 +159,7 @@ export default defineComponent({
 
     //Cycle through colour pallette to get category's line colour
     function getLineColour(index: number) {
-      const colourPallette = ['#142f40', '#7d4e7e', '#696916', '#275265', '#8c922e', '#1f402d', '#3e6551', '#585490', '#865662', '#956b5f'];
+      const colourPallette = ['#0971B9', '#D57DD2', '#B4A017', '#2AB0C1', '#B6D85A', '#1E8037', '#56A679', '#5A82E0', '#F5598C', '#FF8C5E'];
       return colourPallette[index % colourPallette.length];
     }
 

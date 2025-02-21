@@ -54,7 +54,7 @@ import { useStore } from 'vuex';
 import PieChart from './PieChart.vue';
 import LineChart from './LineChart.vue';
 import { AnalysisConfig, Transaction } from '@/store/VuexTransactionStore';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 export default defineComponent({
   name: 'AnalysisPage',
@@ -69,8 +69,8 @@ export default defineComponent({
     const analysisTransactions = computed<Transaction[]>(() => store.getters.getAnalysisTransactions);
     const analysisConfig = computed<AnalysisConfig>(() => store.getters.getAnalysisConfig);
 
-    const startDate = moment(analysisConfig.value.startDate).format('DD/MM/YYYY');
-    const endDate = moment(analysisConfig.value.endDate).format('DD/MM/YYYY');
+    const startDate = dayjs(analysisConfig.value.startDate).format('DD/MM/YYYY');
+    const endDate = dayjs(analysisConfig.value.endDate).format('DD/MM/YYYY');
     const categories = analysisConfig.value.selectedCategories.length > 0 ? analysisConfig.value.selectedCategories : ['All'];
     const subCategories = analysisConfig.value.selectedSubCategories.length > 0 ? analysisConfig.value.selectedSubCategories : ['All'];
     const accounts = analysisConfig.value.selectedAccounts.length > 0 ? analysisConfig.value.selectedAccounts : ['All'];

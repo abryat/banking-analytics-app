@@ -1,11 +1,11 @@
 import Vuex from 'vuex';
 import axios from 'axios';
 import createPersistedState from 'vuex-persistedstate';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 export interface Transaction {
   id: number;
-  date: Date;
+  date: string;
   type: string;
   description: string;
   category: string;
@@ -74,8 +74,8 @@ const store = new Vuex.Store<State>({
     //Return the start and end of date range across all transactions
     getTransactionDateRange: (state: State) => {
       const sortedTransactions = state.transactions.sort((a: Transaction, b: Transaction) => {
-        const dateA = moment(a.date);
-        const dateB = moment(b.date);
+        const dateA = dayjs(a.date);
+        const dateB = dayjs(b.date);
         return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
       });
       const start = sortedTransactions[0].date;
@@ -87,10 +87,10 @@ const store = new Vuex.Store<State>({
     },
 
     //Select transactions within a specified date range
-    getTransactionsByDate: (state: State) => (start: Date, end: Date) => {
+    getTransactionsByDate: (state: State) => (start: string, end: string) => {
       return state.transactions.filter((transaction) => {
-        const transactionDate = new Date(transaction.date);
-        return transactionDate >= start && transactionDate <= end;
+        const transactionDate = dayjs(transaction.date);
+        return transactionDate.isAfter(dayjs(start)) && transactionDate.isBefore(dayjs(end));
       });
     },
 

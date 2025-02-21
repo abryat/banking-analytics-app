@@ -132,7 +132,7 @@
 <script lang='ts'>
 import { defineComponent, computed, ref, watch, reactive} from 'vue';
 import { useStore } from 'vuex';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Transaction, AnalysisConfig } from '../store/VuexTransactionStore';
 import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules, CheckboxValueType } from 'element-plus';
@@ -253,11 +253,11 @@ export default defineComponent({
     });
 
     //Disable dates in the date range selector if they are outside the maximum transaction date range
-    function disabledDates(date: Date) {
-      const calendarDate = moment(date).startOf('day');
-      const startDate = moment(transactionDateRange.value.start).startOf('day');
-      const endDate = moment(transactionDateRange.value.end).startOf('day');
-      return !calendarDate.isBetween(startDate, endDate);
+    function disabledDates(date: string) {
+      const calendarDate = dayjs(date).startOf('day');
+      const startDate = dayjs(transactionDateRange.value.start).startOf('day');
+      const endDate = dayjs(transactionDateRange.value.end).startOf('day');
+      return calendarDate.isBefore(startDate) || calendarDate.isAfter(endDate);
     }
 
     //Disable analyse button if date range is invalid

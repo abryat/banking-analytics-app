@@ -23,7 +23,7 @@ import {defineComponent, PropType, computed, ref, toRefs} from 'vue';
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement, ChartOptions} from 'chart.js';
 import { Transaction } from  '../store/VuexTransactionStore';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
@@ -104,8 +104,8 @@ export default defineComponent({
       ];
 
       return uniqueDates.sort((a, b) => {
-        const dateA = moment(a, dateFormat.value);
-        const dateB = moment(b, dateFormat.value);
+        const dateA = dayjs(a, dateFormat.value);
+        const dateB = dayjs(b, dateFormat.value);
         return dateA.isBefore(dateB) ? -1 : dateA.isAfter(dateB) ? 1 : 0;
       });
     });
@@ -162,9 +162,9 @@ export default defineComponent({
 
     //Function to format date groupings based on the selected date mode
     function formatDateGroup(transaction: Transaction) {
-      const date = moment(transaction.date);
+      const date = dayjs(transaction.date);
       if (dateMode.value === 'week') {
-        date.startOf('week').format(dateFormat.value);
+        return date.startOf('week').format(dateFormat.value);
       }
       return date.format(dateFormat.value);
     }

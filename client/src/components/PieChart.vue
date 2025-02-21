@@ -26,6 +26,7 @@ export default defineComponent({
   setup(props) {
     const { transactions } = toRefs(props);
 
+    //Set chart configuration
     const chartOptions: ChartOptions = {
       responsive: true,
       maintainAspectRatio: true,

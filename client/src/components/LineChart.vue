@@ -194,5 +194,6 @@ export default defineComponent({
     position: relative;
     height: 80vh;
     width: 80vw;
+    max-width: 1340px;
   }
 </style>

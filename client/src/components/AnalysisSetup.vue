@@ -1,119 +1,132 @@
 <template>
-  <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="large" status-icon>
-    <h1>Configure Spending Analysis</h1>
-    <h2>Select the parameters for your analysis and click 'Analyse' to view your spending report.</h2>
+  <main class="config-page">
+    <section class="config-page__overview section-container">
+      <h1>Configure Spending Analysis</h1>
+      <hr>
+      <p>Setup your analysis and click 'Analyse' to view your spending report.</p>
+    </section>
+    <section class="config-page__form-container section-container">
+      <section class="config-page__form-container__form">
+        <div class="config-page__form-container__form__date-range__instructions">
+          <h2>Step 1: Select a date range</h2>
+          <hr>
+          <p>Start by choosing a date range for the analysis.</p>
+          <p>Once you have selected a valid date range, additional options to filter by category, sub-category, and account will appear.</p>
+        </div>
+        <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="large" status-icon>
+          <el-form-item label="Start Date" prop="startDate">
+            <el-date-picker
+              v-model="formData.startDate"
+              type="date"
+              placeholder="Pick a start date"
+              :disabled-date="disabledDates"
+              format="DD/MM/YYYY"
+              size="large"
+            />
+          </el-form-item>
+          <el-form-item label="End Date" prop="endDate">
+            <el-date-picker
+              v-model="formData.endDate"
+              type="date"
+              placeholder="Pick an end date"
+              :disabled-date="disabledDates"
+              format="DD/MM/YYYY"
+              size="large"
+            />
+          </el-form-item>
+          <section v-if="dateRangeValid" class="config-page__form-container__form__optional-filters">
+            <div class="config-page__form-container__form__optional-filters__instructions">
+              <h2>Step 2: Select optional filters</h2>
+              <hr>
+              <p>Choose the categories, sub-categories, and accounts you would like to include in your analysis.</p>
+              <p>If you prefer, you can skip the filters - all transactions within your chosen date range will be included by default.</p>
+            </div>
+            <el-form-item label="Categories" prop="selectedCategories">
+              <el-select
+                v-model="formData.selectedCategories"
+                multiple
+                filterable
+                clearable
+                collapse-tags
+                placeholder="Select Categories"
+              >
+                <template #header>
+                  <el-checkbox
+                    v-model="checkAllCategories"
+                    :indeterminate="indeterminateCategories"
+                    @change="toggleCheckAllCategories"
+                  >
+                    All
+                  </el-checkbox>
+                </template>
+                <el-option
+                  v-for="(category, index) in categories"
+                  :key="index"
+                  :value="category"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="Sub-categories" prop="selectedSubCategories">
+              <el-select
+                v-model="formData.selectedSubCategories"
+                multiple
+                filterable
+                clearable
+                collapse-tags
+                placeholder="Select sub-category"
+              >
+                <template #header>
+                  <el-checkbox
+                    v-model="checkAllSubCategories"
+                    :indeterminate="indeterminateSubCategories"
+                    @change="toggleCheckAllSubCategories"
+                  >
+                    All
+                  </el-checkbox>
+                </template>
+                <el-option
+                  v-for="(subCategory, index) in subCategories"
+                  :key="index"
+                  :value="subCategory"
+                />
+              </el-select>
+            </el-form-item>
 
-    <h3>Step 1: Select a date range</h3>
-    <p>Start by choosing a date range for the analysis.</p>
-    <p>Once you have selected a valid date range, additional options to filter by category, sub-category, and account will appear.</p>
-    <el-form-item label="Start Date" prop="startDate">
-      <el-date-picker
-        v-model="formData.startDate"
-        type="date"
-        placeholder="Pick a start date"
-        :disabled-date="disabledDates"
-        format="DD/MM/YYYY"
-        size="large"
-      />
-    </el-form-item>
-
-    <el-form-item label="End Date" prop="endDate">
-      <el-date-picker
-        v-model="formData.endDate"
-        type="date"
-        placeholder="Pick an end date"
-        :disabled-date="disabledDates"
-        format="DD/MM/YYYY"
-        size="large"
-      />
-    </el-form-item>
-
-    <div v-if="dateRangeValid">
-      <h3>Step 2: Select optional filters</h3>
-      <p>Choose the categories, sub-categories, and accounts you would like to include in your analysis.</p>
-      <p>If you prefer, you can skip the filters - all transactions within your chosen date range will be included by default.</p>
-      <el-form-item label="Categories" prop="selectedCategories">
-        <el-select
-          v-model="formData.selectedCategories"
-          multiple
-          filterable
-          clearable
-          placeholder="Select Categories"
-        >
-          <template #header>
-            <el-checkbox
-              v-model="checkAllCategories"
-              :indeterminate="indeterminateCategories"
-              @change="toggleCheckAllCategories"
-            >
-              All
-            </el-checkbox>
-          </template>
-          <el-option
-            v-for="(category, index) in categories"
-            :key="index"
-            :value="category"
-          />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Sub-categories" prop="selectedSubCategories">
-        <el-select
-          v-model="formData.selectedSubCategories"
-          multiple
-          filterable
-          clearable
-          placeholder="Select sub-category"
-        >
-          <template #header>
-            <el-checkbox
-              v-model="checkAllSubCategories"
-              :indeterminate="indeterminateSubCategories"
-              @change="toggleCheckAllSubCategories"
-            >
-              All
-            </el-checkbox>
-          </template>
-          <el-option
-            v-for="(subCategory, index) in subCategories"
-            :key="index"
-            :value="subCategory"
-          />
-        </el-select>
-      </el-form-item>
-
-      <el-form-item label="Accounts" prop="selectedAccounts">
-        <el-select
-          v-model="formData.selectedAccounts"
-          multiple
-          filterable
-          clearable
-          placeholder="Select Accounts"
-        >
-          <template #header>
-            <el-checkbox
-              v-model="checkAllAccounts"
-              :indeterminate="indeterminateAccounts"
-              @change="toggleCheckAllAccounts"
-            >
-              All
-            </el-checkbox>
-          </template>
-          <el-option
-            v-for="(account, index) in accounts"
-            :key="index"
-            :value="account"
-          />
-        </el-select>
-      </el-form-item>
-    </div>
-
-    <el-form-item>
+            <el-form-item label="Accounts" prop="selectedAccounts">
+              <el-select
+                v-model="formData.selectedAccounts"
+                multiple
+                filterable
+                clearable
+                collapse-tags
+                placeholder="Select Accounts"
+              >
+                <template #header>
+                  <el-checkbox
+                    v-model="checkAllAccounts"
+                    :indeterminate="indeterminateAccounts"
+                    @change="toggleCheckAllAccounts"
+                  >
+                    All
+                  </el-checkbox>
+                </template>
+                <el-option
+                  v-for="(account, index) in accounts"
+                  :key="index"
+                  :value="account"
+                />
+              </el-select>
+            </el-form-item>
+          </section>
+      </el-form>
+      <div class="config-page__form-container__form__analyse-button">
         <el-button type="primary" :disabled="!dateRangeValid" @click="onAnalyse(formRef)">
           Analyse
         </el-button>
-    </el-form-item>
-  </el-form>
+      </div>
+    </section>
+  </section>
+  </main>
 </template>
 
 <script lang='ts'>
@@ -331,3 +344,53 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+
+.config-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    gap: 1em;
+
+    .section-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
+      max-height: 800px;
+      background-color: #ffffff;
+      border-radius: 1em;
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+      padding: 2em;
+    }
+
+    &__form-container {
+      gap: 2em;
+
+      &__form {
+
+        &__date-range__instructions {
+          margin-bottom: 1em;
+        }
+
+        &__optional-filters {
+          margin-top: 2rem;
+
+          &__instructions {
+            margin-bottom: 1em;
+          }
+        }
+
+        &__analyse-button {
+          text-align: right;
+        }
+
+      }
+    }
+  }
+</style>

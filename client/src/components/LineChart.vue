@@ -128,7 +128,19 @@ export default defineComponent({
       };
     });
 
+    //Set chart configuration
     const chartOptions: ChartOptions<'line'> = {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        y: {
+          ticks: {
+            callback: function(value) {
+              return '£' + Number(value).toFixed(2);
+            },
+          },
+        },
+      },
       plugins: {
         tooltip: {
           callbacks: {

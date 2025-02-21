@@ -27,6 +27,8 @@ export default defineComponent({
     const { transactions } = toRefs(props);
 
     const chartOptions: ChartOptions = {
+      responsive: true,
+      maintainAspectRatio: true,
       plugins: {
         tooltip: {
           callbacks: {

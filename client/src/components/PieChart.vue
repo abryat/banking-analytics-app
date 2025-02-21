@@ -85,10 +85,10 @@ export default defineComponent({
 
 <style lang="scss" scoped>
   .chart-container {
-    width: 100%;
-    height: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+    margin: 0;
+    position: relative;
+    height: 50vh;
+    width: 50vh;
+    align-self: center;
   }
-
 </style>

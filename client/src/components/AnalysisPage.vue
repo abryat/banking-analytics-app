@@ -93,7 +93,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 1em;
-    padding-top: 1em;
+    padding: 1em;
 
     &__overview {
       align-items: center;
@@ -113,6 +113,11 @@ export default defineComponent({
       max-width: 1400px;
       width: 100%;
       margin: auto;
+
+      @media(max-width: 1000px) {
+        display: flex;
+        flex-direction: column;
+      }
 
       &__config-panel {
         grid-area: config;

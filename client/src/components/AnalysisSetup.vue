@@ -355,6 +355,7 @@ export default defineComponent({
     height: 100%;
     width: 100%;
     gap: 1em;
+    padding: 1em;
 
     .section-container {
       display: flex;

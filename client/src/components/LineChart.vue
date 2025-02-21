@@ -190,9 +190,9 @@ export default defineComponent({
     padding: 1em 0;
   }
   .chart-container {
-    width: 100%;
-    height: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
+    margin: 0;
+    position: relative;
+    height: 80vh;
+    width: 80vw;
   }
 </style>

@@ -1,21 +1,25 @@
 
 :root {
-  //Override element plus styling
-  --el-color-primary: #7d4e7e;
-  --el-button-hover-bg-color: var(--button-highlight-color);
-  --el-color-primary-light-3: #9E619E;
-  --el-color-primary-light-5:#8C8C8C;
-  //TODO: focus/active state
-  
+  --page-background-color: #d1b3d1;
+
+  //Override element plus variables
+  --primary-color: #7d4e7e;
+  --highlight-color: #9E619E;
+
+  --button-active-bg-color: #492d49;
+  --button-hover-bg-color: var(--highlight-color);
+  --button-disabled-bg-color: #8C8C8C;
+
+  --el-color-primary: var(--primary-color);
   --el-button-primary-bg-color: var(--el-color-primary);
   --el-button-primary-border-color: var(--el-color-primary);
   --el-button-primary-text-color: #fff;
 
   --el-font-size-base: 16px;
   --el-select-width: 250px;
-
   }
 
+  //global styles
 * {
     margin: 0;
     padding: 0;
@@ -29,7 +33,7 @@
     height: 100%;
     box-sizing: border-box;
     font-family: Arial, sans-serif;
-    background-color: #d1b3d1;
+    background-color: var(--page-background-color);
   }
   
   #app {
@@ -50,14 +54,34 @@
   h3 {
     font-size: 1rem;
   }
-  
+
+  hr {
+    margin: 0.5em 0;
+    border-top: 1px solid var(--highlight-color);
+    width: 100%;
+  }
+
+  //Override element plus
   .el-select {
     --el-select-width: 220px;
   }
 
-  hr {
-    margin: 0.5em 0;
-    border-top: 1px solid var(--el-color-primary-light-3);
-    width: 100%;
+  .el-button {
+    &:active {
+      --el-button-active-bg-color: var(--button-active-bg-color);
+      --el-button-active-border-color: var(--button-active-bg-color);
+    }
+    &:hover {
+      --el-button-hover-bg-color: var(--button-hover-bg-color);
+      --el-button-hover-border-color: var(--button-hover-bg-color);
+    }
+    &.is-disabled {
+      --el-button-disabled-bg-color: var(--button-disabled-bg-color);
+      --el-button-disabled-border-color: var(--button-disabled-bg-color);
+    }
+
+    &:focus {
+      outline: 2px solid var(--el-color-primary);
+    }
   }
   

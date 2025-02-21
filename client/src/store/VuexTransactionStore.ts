@@ -45,7 +45,32 @@ const store = new Vuex.Store<State>({
     },
   },
   actions: {
-    //Retrieve Transaction data from the server
+    //Demo data API: Retrieve Transaction data from the server
+    async getTransactions({state, commit}) {
+      if (state.transactions.length > 0) {
+        return;
+      }
+      try {
+        //Fetch transactions from server and commit to state
+        const response = await axios.get(
+          'http://localhost:3000/api/demoTransactions',
+        );
+        commit('setTransactions', response.data);
+      }
+      catch (error) {
+        //returns an empty list of transactions on failed API call
+        console.error('Error fetching transactions:', error);
+        commit('setTransactions', []);
+      }
+    },
+
+    //Store changes to the analysis configuration
+    updateAnalysisConfig({ commit }, analysisConfig: AnalysisConfig) {
+      commit('setAnalysisConfig', analysisConfig);
+    },
+
+    //MySQL API: Retrieve Transaction data from the server
+    /*
     async getTransactions({ state, commit }) {
       if (state.transactions.length > 0) {
         return;
@@ -64,11 +89,7 @@ const store = new Vuex.Store<State>({
         commit('setTransactions', []);
       }
     },
-
-    //Store changes to the analysis configuration
-    updateAnalysisConfig({ commit }, analysisConfig: AnalysisConfig) {
-      commit('setAnalysisConfig', analysisConfig);
-    },
+    */
   },
   getters: {
     //Return the start and end of date range across all transactions

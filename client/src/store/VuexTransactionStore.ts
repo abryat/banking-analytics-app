@@ -1,5 +1,6 @@
-import { createStore } from 'vuex';
+import Vuex from 'vuex';
 import axios from 'axios';
+import createPersistedState from 'vuex-persistedstate';
 
 export interface Transaction {
   id: number;
@@ -26,25 +27,29 @@ interface State {
   analysisConfig: AnalysisConfig;
 }
 
-const store = createStore<State>({
+const store = new Vuex.Store<State>({
   state: {
     transactions: [],
     analysisConfig: {} as AnalysisConfig,
   },
   mutations: {
     //Commit Transaction data to store state
-    setTransactions(state, transactions: Transaction[]) {
+    setTransactions(state: State, transactions: Transaction[]) {
       state.transactions = transactions;
     },
 
     //Commit analysis configuration to state
-    setAnalysisConfig(state, analysisConfig: AnalysisConfig) {
+    setAnalysisConfig(state: State, analysisConfig: AnalysisConfig) {
       state.analysisConfig = analysisConfig;
     },
   },
   actions: {
     //Retrieve Transaction data from the server
-    async getTransactions({ commit }) {
+    async getTransactions({ state, commit }) {
+      if (state.transactions.length > 0) {
+        return;
+      }
+
       try {
         //Fetch transactions from server and commit to state
         const response = await axios.get(
@@ -60,14 +65,14 @@ const store = createStore<State>({
     },
 
     //Store changes to the analysis configuration
-    updateAnalysisConfig({ commit }, analysisConfig) {
+    updateAnalysisConfig({ commit }, analysisConfig: AnalysisConfig) {
       commit('setAnalysisConfig', analysisConfig);
     },
   },
   getters: {
     //Return the start and end of date range across all transactions
-    getTransactionDateRange: (state) => {
-      const sortedTxns = state.transactions.sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate());
+    getTransactionDateRange: (state: State) => {
+      const sortedTxns = state.transactions.sort((a: Transaction, b: Transaction) => new Date(a.date).getDate() - new Date(b.date).getDate());
       const start = sortedTxns[0].date;
       const end = sortedTxns[sortedTxns.length - 1].date;
       return {
@@ -77,7 +82,7 @@ const store = createStore<State>({
     },
 
     //Select transactions within a specified date range
-    getTransactionsByDate: (state) => (start: Date, end: Date) => {
+    getTransactionsByDate: (state: State) => (start: Date, end: Date) => {
       return state.transactions.filter((transaction) => {
         const transactionDate = new Date(transaction.date);
         return transactionDate >= start && transactionDate <= end;
@@ -85,12 +90,12 @@ const store = createStore<State>({
     },
 
     //return the stored analysis configuration
-    getAnalysisConfig(state) {
+    getAnalysisConfig(state: State) {
       return state.analysisConfig;
     },
 
     //filter transactions by the parameters in  the stored analysis configuration
-    getAnalysisTransactions(state, getters) {
+    getAnalysisTransactions(state: State, getters) {
       const analysisConfig = state.analysisConfig;
       const allTransactions = getters.getTransactionsByDate(analysisConfig.startDate, analysisConfig.endDate);
 
@@ -102,6 +107,11 @@ const store = createStore<State>({
       });
     },
   },
+  plugins: [
+    createPersistedState({
+      storage: window.sessionStorage,
+    }),
+  ],
 });
 
 export default store;

@@ -1,13 +1,13 @@
 <template>
-    <div>
-        <Pie :data="chartData" />
+    <div class="chart-container">
+        <Pie :data="chartData" :options="chartOptions"/>
     </div>
 </template>
 
 <script lang="ts">
 import {defineComponent, PropType, computed, toRefs} from 'vue';
 import { Pie } from 'vue-chartjs';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title, CategoryScale, ChartOptions } from 'chart.js';
 import { Transaction } from  '../store/VuexTransactionStore';
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title, CategoryScale);
@@ -25,6 +25,23 @@ export default defineComponent({
   },
   setup(props) {
     const { transactions } = toRefs(props);
+
+    const chartOptions: ChartOptions = {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(toolTipValue) {
+              const value = toolTipValue.raw as number;
+              return `£${value.toFixed(2)}`;
+            },
+          },
+        },
+        legend: {
+          position: 'right',
+          align: 'center',
+        },
+      },
+    };
 
     //Compute the total transaction value for each category
     const categoryTotals = computed(() => {
@@ -49,15 +66,26 @@ export default defineComponent({
         datasets: [
           {
             data: values,
-            backgroundColor: ['#2C3E50', '#E74C3C', '#27AE60', '#F39C12', '#8E44AD', '#3498DB', '#16A085', '#D35400', '#9B59B6', '#1ABC9C'], //temp pallette
+            backgroundColor: ['#142f40', '#7d4e7e', '#696916', '#275265', '#8c922e', '#1f402d', '#3e6551', '#585490', '#865662', '#956b5f'],
           },
         ],
       };
     });
 
     return {
+      chartOptions,
       chartData,
     };
   },
 });
 </script>
+
+<style lang="scss" scoped>
+  .chart-container {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+</style>

@@ -1,5 +1,6 @@
 <template>
-    <div>
+    <div class="select-date-mode">
+      View breakdown by:
       <el-select
         v-model="dateMode"
         placeholder="Select date mode"
@@ -12,15 +13,15 @@
           />
       </el-select>
     </div>
-    <div>
-        <Line :data="chartData" />
+    <div class="chart-container">
+        <Line :data="chartData" :options="chartOptions"/>
     </div>
 </template>
 
 <script lang="ts">
 import {defineComponent, PropType, computed, ref, toRefs} from 'vue';
 import { Line } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement} from 'chart.js';
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement, ChartOptions} from 'chart.js';
 import { Transaction } from  '../store/VuexTransactionStore';
 import moment from 'moment';
 
@@ -111,10 +112,10 @@ export default defineComponent({
 
     //Map grouped transactions to unique date labels, creating the chart datasets for each category
     const datasets = computed(() => {
-      return Object.keys(groupedTransactions.value).map((categoryKey: string) => ({
+      return Object.keys(groupedTransactions.value).map((categoryKey: string, index: number) => ({
         label: categoryKey,
         data: labels.value.map((dateKey) => groupedTransactions.value[categoryKey][dateKey] || 0),
-        borderColor: '#000',
+        borderColor: getLineColour(index),
         fill: false,
         tension: 0.1,
       }));
@@ -127,6 +128,26 @@ export default defineComponent({
       };
     });
 
+    const chartOptions: ChartOptions<'line'> = {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(toolTipValue) {
+              const value = toolTipValue.raw as number;
+              return `£${value.toFixed(2)}`;
+            },
+          },
+        },
+        legend: {
+          labels: {
+            usePointStyle: false,
+            boxWidth: 40,
+            boxHeight: 1,
+          },
+        },
+      },
+    };
+
     //Function to format date groupings based on the selected date mode
     function formatDateGroup(transaction: Transaction) {
       const date = moment(transaction.date);
@@ -136,11 +157,30 @@ export default defineComponent({
       return date.format(dateFormat.value);
     }
 
+    //Cycle through colour pallette to get category's line colour
+    function getLineColour(index: number) {
+      const colourPallette = ['#142f40', '#7d4e7e', '#696916', '#275265', '#8c922e', '#1f402d', '#3e6551', '#585490', '#865662', '#956b5f'];
+      return colourPallette[index % colourPallette.length];
+    }
+
     return {
       dateMode,
       dateModes,
       chartData,
+      chartOptions,
     };
   },
 });
 </script>
+
+<style scoped>
+  .select-date-mode {
+    padding: 1em 0;
+  }
+  .chart-container {
+    width: 100%;
+    height: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+</style>

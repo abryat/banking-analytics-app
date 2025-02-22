@@ -6,7 +6,7 @@ You can define your own date ranges, select specific categories, sub-categories 
 Explore the app using the included demo transaction data, or download your own data from online banking and link the app to your local database.
 
 ### Demo Note:
-Demo data is included to allow for testing and review of the application: ```banking_analytics/server/data/demoTransactions.json``` 
+Demo data is included to allow for testing and review of the application: ```banking-analytics-app/server/data/demoTransactions.json``` 
 
 Running this app as described below will use the demo data.
 
@@ -48,7 +48,7 @@ Functionality to fetch data from a local MySQL database is commented out, for re
 ```bash
 git clone https://github.com/abryat/banking-analytics-app.git 
 
-cd banking_analytics
+cd banking-analytics-app
 ```
 
 **2. Install dependencies:**
@@ -80,7 +80,7 @@ http://localhost:8080
 ## Testing
 This project uses **Jest** for unit testing. Tests are currently available for the **front-end** application.
 ### Running unit tests
-To run the front-end tests, execute this command in the ```banking_analytics``` folder:
+To run the front-end tests, execute this command in the ```banking-analytics-app``` folder:
 ```bash
 npm run test-client
 ```
@@ -93,7 +93,7 @@ The server uses the following API endpoints:
 
 ## Folder Structure
 ```plaintext
-banking_analytics/
+banking-analytics-app/
 ├── client/                     Front-end
 │   ├── public/                 Static files: index.html, favicon.
 │   ├── src/                    Source code for front-end.

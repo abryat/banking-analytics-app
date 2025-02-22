@@ -137,6 +137,7 @@ import { Transaction, AnalysisConfig } from '../store/VuexTransactionStore';
 import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules, CheckboxValueType } from 'element-plus';
 import { ElMessage } from 'element-plus';
+import { InternalRuleItem } from 'async-validator';
 
 export default defineComponent({
   name: 'AnalysisSetup',
@@ -166,6 +167,7 @@ export default defineComponent({
     const formRules = reactive<FormRules<AnalysisConfig>>({
       startDate: [
         {required: true, message: 'Please enter a start date', trigger: 'change'},
+        {validator: validateDateRange, trigger: 'change'},
       ],
       endDate: [
         {required: true, message: 'Please enter an end date', trigger: 'change'},
@@ -198,6 +200,7 @@ export default defineComponent({
       return [...new Set(selectedTransactions.value.map((transaction: Transaction) => transaction.accountName))];
     });
 
+    //Disable analyse button if date range is invalid
     const dateRangeValid = computed(() => {
       return formData.startDate && formData.endDate && formData.startDate < formData.endDate;
     });
@@ -260,12 +263,19 @@ export default defineComponent({
       return calendarDate.isBefore(startDate) || calendarDate.isAfter(endDate);
     }
 
-    //Disable analyse button if date range is invalid
-    function validateDateRange(rule: any, endDate: Date, callback: (error?: string | Error) => void) {
-      if (formData.startDate && new Date(formData.startDate) >= new Date(endDate)) {
-        callback(new Error('Start date must be before end date'));
-      } else {
-        callback();
+    //Validator to check that start date is before end date
+    function validateDateRange(rule: InternalRuleItem, inputDate: Date, callback: (error?: string | Error) => void) {
+      const isStartDate = rule.field === 'startDate';
+      const start = isStartDate ? inputDate : formData.startDate;
+      const end = isStartDate ? formData.endDate : inputDate;
+
+      if (formData.startDate && formData.endDate) {
+        if (dayjs(start).isAfter(dayjs(end))) {
+          callback(new Error('Start date must be before end date'));
+        } else {
+          formRef.value?.clearValidate(isStartDate ? 'endDate' : 'startDate');
+          callback();
+        }
       }
     }
 

@@ -111,7 +111,7 @@ const store = new Vuex.Store<State>({
     getTransactionsByDate: (state: State) => (start: string, end: string) => {
       return state.transactions.filter((transaction) => {
         const transactionDate = dayjs(transaction.date);
-        return transactionDate.isAfter(dayjs(start)) && transactionDate.isBefore(dayjs(end));
+        return transactionDate.isBetween(dayjs(start), dayjs(end), 'day', '[]');
       });
     },
 

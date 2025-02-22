@@ -202,7 +202,7 @@ export default defineComponent({
 
     //Disable analyse button if date range is invalid
     const dateRangeValid = computed(() => {
-      return formData.startDate && formData.endDate && formData.startDate < formData.endDate;
+      return formData.startDate && formData.endDate && dayjs(formData.startDate).isSameOrBefore(dayjs(formData.endDate), 'day');
     });
 
     //Handle individual selection and select all functionality in dropdown menus
@@ -270,12 +270,15 @@ export default defineComponent({
       const end = isStartDate ? formData.endDate : inputDate;
 
       if (formData.startDate && formData.endDate) {
-        if (dayjs(start).isAfter(dayjs(end))) {
-          callback(new Error('Start date must be before end date'));
-        } else {
+        if (dayjs(start).isSameOrBefore(dayjs(end), 'day')) {
           formRef.value?.clearValidate(isStartDate ? 'endDate' : 'startDate');
           callback();
+        } else {
+          callback(new Error('Start date must be before end date'));
         }
+      }
+      else {
+        callback();
       }
     }
 

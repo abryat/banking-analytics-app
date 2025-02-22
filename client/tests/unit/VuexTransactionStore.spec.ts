@@ -1,6 +1,7 @@
+import { Store } from 'vuex';
 import axios from 'axios';
 import axiosMock from 'axios-mock-adapter';
-import store from '../../src/store/VuexTransactionStore';
+import store, {State, AnalysisConfig, Transaction} from '../../src/store/VuexTransactionStore';
 
 //Define mock axios adapater and data for testing the Transactions Vuex Store
 const mockAxios = new axiosMock(axios);
@@ -10,8 +11,15 @@ const mockTransactions =  [
   {id: 3, date: '2024-08-07', type: 'POS', description: 'Lush Cosmetics', category: 'Shopping', subCategory: 'InStore', accountName: 'JOINT', balance: 2870, value: 30 },
 ];
 
-describe('Vuex Transactions Store', () => {
+//Reset the state to its initial values, for before each action test
+function resetState(store: Store<State>) {
+  store.replaceState({
+    transactions: [] as Transaction[],
+    analysisConfig: {} as AnalysisConfig,
+  });
+}
 
+describe('Vuex Transactions Store', () => {
   //Reset mock store before each tests to ensure they are independent
   beforeEach(() => {
     mockAxios.reset();
@@ -25,7 +33,6 @@ describe('Vuex Transactions Store', () => {
     });
   });
 
-
   describe('Getters', () => {
     //Test that getTransactionDateRange returns the earliest and latest date amongst Transactions
     it('getTransactionDateRange returns correct start and end dates', () => {
@@ -36,7 +43,29 @@ describe('Vuex Transactions Store', () => {
   });
 
   describe('Actions', () => {
+    //Reset State
+    beforeEach(() => {
+      resetState(store);
+    });
+
+    //Demo data API
     //Test that a successful API call for getTransactions correctly sets the transactions state
+    it('getTransactions correctly sets transactions on successful API call', async () => {
+      mockAxios.onGet('http://localhost:3000/api/demoTransactions').reply(200, mockTransactions);
+      await store.dispatch('getTransactions');
+      expect(store.state.transactions).toEqual(mockTransactions);
+    });
+
+    //Test that a failed API call for getTransactions sets an empty array to the transactions state
+    it('returns empty transactions on failed API call', async () => {
+      mockAxios.onGet('http://localhost:3000/api/demoTransactions').reply(500);
+      await store.dispatch('getTransactions');
+      expect(store.state.transactions).toEqual([]);
+    });
+
+    //MySQL API
+    //Test that a successful API call for getTransactions correctly sets the transactions state
+    /*
     it('getTransactions correctly sets transactions on successful API call', async () => {
       mockAxios.onGet('http://localhost:3000/api/transactions').reply(200, mockTransactions);
       await store.dispatch('getTransactions');
@@ -49,5 +78,6 @@ describe('Vuex Transactions Store', () => {
       await store.dispatch('getTransactions');
       expect(store.state.transactions).toEqual([]);
     });
+    */
   });
 });

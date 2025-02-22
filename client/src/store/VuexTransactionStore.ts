@@ -23,7 +23,7 @@ export interface AnalysisConfig {
   selectedAccounts: string[];
 }
 
-interface State {
+export interface State {
   transactions: Transaction[];
   analysisConfig: AnalysisConfig;
 }

@@ -27,7 +27,7 @@ export default defineComponent({
     const { transactions } = toRefs(props);
 
     //Set chart configuration
-    const chartOptions: ChartOptions = {
+    const chartOptions: ChartOptions<'pie'> = {
       responsive: true,
       maintainAspectRatio: true,
       plugins: {

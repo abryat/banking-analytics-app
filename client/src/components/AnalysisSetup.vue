@@ -10,8 +10,10 @@
         <div class="config-page__form-container__form__date-range__instructions">
           <h2>Step 1: Select a date range</h2>
           <hr>
-          <p>Start by choosing a date range for the analysis.</p>
-          <p>Once you have selected a valid date range, additional options to filter by category, sub-category, and account will appear.</p>
+          <ul>
+            <li>Start by choosing a date range for the analysis.</li>
+            <li>Step 2 will become available once you have selected a valid date range.</li>
+          </ul>
         </div>
         <el-form ref="formRef" :model="formData" :rules="formRules" label-width="120px" size="large" status-icon>
           <el-form-item label="Start Date" prop="startDate">
@@ -34,12 +36,15 @@
               size="large"
             />
           </el-form-item>
-          <section v-if="dateRangeValid" class="config-page__form-container__form__optional-filters">
+          <section class="config-page__form-container__form__optional-filters" :class="{'--disabled': !dateRangeValid}">
             <div class="config-page__form-container__form__optional-filters__instructions">
               <h2>Step 2: Select optional filters</h2>
               <hr>
-              <p>Choose the categories, sub-categories, and accounts you would like to include in your analysis.</p>
-              <p>If you prefer, you can skip the filters - all transactions within your chosen date range will be included by default.</p>
+              <ul>
+                <li>Choose the categories, sub-categories, and accounts you would like to include in your analysis.</li>
+                <li>If you prefer, you can skip the filters - all transactions within your chosen date range will be included by default.</li>
+                <li><b>Note: </b>Changing the date range will update the available filter options. Any options that are unavailable for the new date range will be automatically removed.</li>
+              </ul>
             </div>
             <el-form-item label="Categories" prop="selectedCategories">
               <el-select
@@ -49,11 +54,12 @@
                 clearable
                 collapse-tags
                 placeholder="Select Categories"
+                :disabled="!dateRangeValid"
               >
                 <template #header>
                   <el-checkbox
-                    v-model="checkAllCategories"
-                    :indeterminate="indeterminateCategories"
+                    v-model="optionalFilterState.categories.checkAll"
+                    :indeterminate="optionalFilterState.categories.indeterminate"
                     @change="toggleCheckAllCategories"
                   >
                     All
@@ -74,11 +80,12 @@
                 clearable
                 collapse-tags
                 placeholder="Select sub-category"
+                :disabled="!dateRangeValid"
               >
                 <template #header>
                   <el-checkbox
-                    v-model="checkAllSubCategories"
-                    :indeterminate="indeterminateSubCategories"
+                    v-model="optionalFilterState.subCategories.checkAll"
+                    :indeterminate="optionalFilterState.subCategories.indeterminate"
                     @change="toggleCheckAllSubCategories"
                   >
                     All
@@ -100,11 +107,12 @@
                 clearable
                 collapse-tags
                 placeholder="Select Accounts"
+                :disabled="!dateRangeValid"
               >
                 <template #header>
                   <el-checkbox
-                    v-model="checkAllAccounts"
-                    :indeterminate="indeterminateAccounts"
+                    v-model="optionalFilterState.accounts.checkAll"
+                    :indeterminate="optionalFilterState.accounts.indeterminate"
                     @change="toggleCheckAllAccounts"
                   >
                     All
@@ -130,14 +138,25 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, computed, ref, watch, reactive} from 'vue';
+import { defineComponent, computed, ref, watch, reactive } from 'vue';
 import { useStore } from 'vuex';
 import dayjs from 'dayjs';
 import { Transaction, AnalysisConfig } from '../store/VuexTransactionStore';
 import { useRouter } from 'vue-router';
-import type { FormInstance, FormRules, CheckboxValueType } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import { ElMessage } from 'element-plus';
 import { InternalRuleItem } from 'async-validator';
+
+interface CheckAllState {
+  checkAll: boolean;
+  indeterminate: boolean;
+}
+
+interface OptionalFilterState {
+  categories: CheckAllState;
+  subCategories: CheckAllState;
+  accounts: CheckAllState;
+}
 
 export default defineComponent({
   name: 'AnalysisSetup',
@@ -147,13 +166,6 @@ export default defineComponent({
 
     //Initialise form
     const formRef = ref<FormInstance>();
-
-    const checkAllCategories = ref(false);
-    const indeterminateCategories = ref(false);
-    const checkAllSubCategories = ref(false);
-    const indeterminateSubCategories = ref(false);
-    const checkAllAccounts = ref(false);
-    const indeterminateAccounts = ref(false);
 
     const formData = reactive<AnalysisConfig>({
       startDate: undefined,
@@ -205,54 +217,33 @@ export default defineComponent({
       return formData.startDate && formData.endDate && dayjs(formData.startDate).isSameOrBefore(dayjs(formData.endDate), 'day');
     });
 
-    //Handle individual selection and select all functionality in dropdown menus
-    watch (formData.selectedCategories, (newSelectedCategories: string[]) => {
-      if (newSelectedCategories.length === 0) {
-        checkAllCategories.value = false;
-        indeterminateCategories.value = false;
-      } else if (newSelectedCategories.length === categories.value.length) {
-        checkAllCategories.value = true;
-        indeterminateCategories.value = false;
-      } else {
-        indeterminateCategories.value = true;
-      }
+    //Store the flags for checkAll/indeterminate of each filter option type in an object
+    const optionalFilterState = computed<OptionalFilterState>(() => {
+      return {
+        categories: setOptionalFilterState(formData.selectedCategories, categories.value),
+        subCategories: setOptionalFilterState(formData.selectedSubCategories, subCategories.value),
+        accounts: setOptionalFilterState(formData.selectedAccounts, accounts.value),
+      };
     });
 
-    watch (formData.selectedSubCategories, (newSelectedSubCategories: string[]) => {
-      if (newSelectedSubCategories.length === 0) {
-        checkAllSubCategories.value = false;
-        indeterminateSubCategories.value = false;
-      } else if (newSelectedSubCategories.length === subCategories.value.length) {
-        checkAllSubCategories.value = true;
-        indeterminateSubCategories.value = false;
-      } else {
-        indeterminateSubCategories.value = true;
-      }
+    //Check if the selected filters exist in the options available for the new date range.
+    //Preserve the available selected options and remove the unavailable
+    watch((categories), () => {
+      formData.selectedCategories = formData.selectedCategories.filter(category => {
+        return categories.value.includes(category);
+      });
     });
 
-    watch (formData.selectedAccounts, (newSelectedAccounts: string[]) => {
-      if (newSelectedAccounts.length === 0) {
-        checkAllAccounts.value = false;
-        indeterminateAccounts.value = false;
-      } else if (newSelectedAccounts.length === accounts.value.length) {
-        checkAllAccounts.value = true;
-        indeterminateAccounts.value = false;
-      } else {
-        indeterminateAccounts.value = true;
-      }
+    watch((subCategories), () => {
+      formData.selectedSubCategories = formData.selectedSubCategories.filter(subCategory => {
+        return subCategories.value.includes(subCategory);
+      });
     });
 
-    //Reset filters if date range is changed
-    watch([() => formData.startDate, () => formData.endDate], () => {
-      formData.selectedCategories = [];
-      formData.selectedSubCategories = [];
-      formData.selectedAccounts = [];
-      checkAllCategories.value = false;
-      checkAllSubCategories.value = false;
-      checkAllAccounts.value = false;
-      indeterminateCategories.value = false;
-      indeterminateSubCategories.value = false;
-      indeterminateAccounts.value = false;
+    watch((accounts), () => {
+      formData.selectedAccounts = formData.selectedAccounts.filter(account => {
+        return accounts.value.includes(account);
+      });
     });
 
     //Disable dates in the date range selector if they are outside the maximum transaction date range
@@ -282,32 +273,36 @@ export default defineComponent({
       }
     }
 
-    //Update filters if 'All' is selected or deselected
-    function toggleCheckAllCategories(isChecked: CheckboxValueType) {
-      indeterminateCategories.value = false;
-      if (isChecked) {
+    //Update selected filters options if 'All' is selected or deselected
+    function toggleCheckAllCategories() {
+      if (optionalFilterState.value.categories.checkAll) {
         formData.selectedCategories = categories.value;
       } else {
         formData.selectedCategories = [];
       }
     }
 
-    function toggleCheckAllSubCategories(isChecked: CheckboxValueType) {
-      indeterminateSubCategories.value = false;
-      if (isChecked) {
+    function toggleCheckAllSubCategories() {
+      if (optionalFilterState.value.subCategories.checkAll) {
         formData.selectedSubCategories = subCategories.value;
       } else {
         formData.selectedSubCategories = [];
       }
     }
 
-    function toggleCheckAllAccounts(isChecked: CheckboxValueType) {
-      indeterminateAccounts.value = false;
-      if (isChecked) {
+    function toggleCheckAllAccounts() {
+      if (optionalFilterState.value.accounts.checkAll) {
         formData.selectedAccounts = accounts.value;
       } else {
         formData.selectedAccounts = [];
       }
+    }
+
+    //Set the checkAll and indeterminate flags for the filter option dropdown menu
+    function setOptionalFilterState(selected: string[], options: string[]) {
+      const checkAll = selected.length > 0 && selected.length === options.length;
+      const indeterminate = selected.length > 0 && selected.length < options.length;
+      return {checkAll, indeterminate};
     }
 
     //On form validation/submission, commit the analysis config and route to the analysis page
@@ -334,12 +329,7 @@ export default defineComponent({
       formRef,
       formData,
       formRules,
-      checkAllCategories,
-      checkAllSubCategories,
-      checkAllAccounts,
-      indeterminateCategories,
-      indeterminateSubCategories,
-      indeterminateAccounts,
+      optionalFilterState,
 
       transactionDateRange,
       selectedTransactions,
@@ -395,6 +385,12 @@ export default defineComponent({
         &__optional-filters {
           margin-top: 2rem;
 
+          &.--disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            cursor: not-allowed;
+          }
+
           &__instructions {
             margin-bottom: 1em;
           }
@@ -405,6 +401,13 @@ export default defineComponent({
         }
 
       }
+    }
+  }
+
+  ul {
+    padding-left: 1em;
+    li {
+      margin-bottom: 0.2em;
     }
   }
 </style>
